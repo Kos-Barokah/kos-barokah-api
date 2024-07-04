@@ -16,6 +16,10 @@ import (
 	dataUser "kos-barokah-api/features/users/data"
 	handlerUser "kos-barokah-api/features/users/handler"
 	serviceUser "kos-barokah-api/features/users/service"
+
+	dataRoom "kos-barokah-api/features/room/data"
+	handlerRoom "kos-barokah-api/features/room/handler"
+	serviceRoom "kos-barokah-api/features/room/service"
 )
 
 func main() {
@@ -47,10 +51,13 @@ func main() {
 	jwtInterface := helper.New(config.Secret, config.RefSecret)
 
 	userModel := dataUser.NewData(db)
+	roomModel := dataRoom.NewData(db)
 
 	userServices := serviceUser.NewService(userModel, jwtInterface, email, encrypt)
+	roomServices := serviceRoom.NewService(roomModel, jwtInterface, email, encrypt)
 
 	userController := handlerUser.NewHandler(userServices, jwtInterface)
+	roomController := handlerRoom.NewHandler(roomServices, jwtInterface)
 
 	e.Pre(middleware.RemoveTrailingSlash())
 
@@ -63,6 +70,9 @@ func main() {
 	group := e.Group("/api/v1")
 
 	routes.RouteUser(group, userController, *config)
+	routes.RouteRoom(group, roomController, *config)
+
+	fmt.Println("tes")
 
 	e.Logger.Debug(db)
 
